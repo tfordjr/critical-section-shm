@@ -1,29 +1,28 @@
-Terry Ford Project 1 - reverse 09/03/2023
-Git: https://github.com/tfordjr/reverse-input
+Terry Ford Project 2 - master/slave using shm to access to critical sections one at a time 09/17/2023
+Git: No git repo-not required in the project 2 specifications.
 
 How to run my program:
-make command will generate executable named reverse
-./reverse command with optional -h, -i, and -o args will run the program.
+make command will generate executables master and slave
+./reverse command with required -t arg will run the program.
+sample command to run the program: ./master -t 60 10
+where -t arg defines how many seconds before master tires of waiting and kills all children,
+and where the final arg is the number of processes created that will access critical section cstest
+
 
 Implementation:
-two main files are: reverse.c and stack.h
-reverse.c holds main() and help()
-stack.h holds basic stack operations isEmpty(), isFull(), pop(), and push()
+source code files are: master.c, slave.c, config.h, shm.h 
+master.c creates specified number of children, logs to logfile.master.PID
+slave.c dictates children to take turns writing to cstest by waiting and checking repeatedly
+config.h defines timeoutSeconds and maxChildren variables
+shm.h defines initshm and openshm, and keeps shared memory details all in one spot where it can be easily modified
+Also included are readme.txt and Makefile, which uses pattern rules. 
 
-Also included are input files bigdata.dat, in.dat, and input.dat each with different inputs
-And also the Makefile, which uses pattern rules
 
 Notable inclusions are:
 perror() messages for each file open operation and for failed forks
-input and output files default to input.dat and output.dat respectively, will not change unless specified w/ -i, -o
-Child process implementation
-stack implementation for array reversing
-version control with github
-Makefile with pattern rules
+modular design philosophy to increase readability, reusability and ease of use
+Makefile with pattern rules, make operation does not raise compile warnings or errors
 Appropriate comments that briefly explain implementation and methods used
 
 Notable exclusions are:
-Does not conform precisely to input/output file defaults (specifications confilct on pages 1 and 2)
-  Page 1: "If input and output filenames are not specified, the defaults should be input.dat and output.dat."
-  Page 2: "If the user does not specify an input file, print the usage message and terminate. If the user does not specify an output file, create the filename by appending .out to the input file name."
-Program assumes that the input file is always in the correct format ie. number of child processes or array sizes correct. 
+
