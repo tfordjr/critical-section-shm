@@ -72,8 +72,7 @@ void sigCatch(int signum) {     // Interrupt condition
 
 void timeout(int signum){       // Timeout condition
 	printf("Timeout has occured. Now terminating all child processes.\n ");
-	logfile();
-	shmdt(lock);
+	logfile();	
 	deallocateshm();	// Detach and deallocate shared memory before termination 
 	kill(0, SIGKILL);       // Kill all child processes
 }
