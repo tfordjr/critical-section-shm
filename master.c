@@ -43,7 +43,7 @@ int main(int argc, char** argv){
 							printf("Too many children provided! ");
 							printf("Proceeding with %d children\n", maxChildren);
 						} else {
-							numChildren = atoi(argv[i + 2]);    
+							numChildren = atoi(argv[i + 2]);    // Casts arg to int
 						}					
 					break;
                         		} 
@@ -53,31 +53,32 @@ int main(int argc, char** argv){
 
 	bool* lock = initshm(); // initialize shared memory and return referent to it so we can deallocate later
 
-	signal(SIGINT, sigCatch);
-	signal(SIGALRM, timeout);
+	signal(SIGINT, sigCatch);    // Catch ctrl+c signal 
+	signal(SIGALRM, timeout);    // Catch timeout signal
 	alarm(timeoutSeconds);
 
-	forkandwait(numChildren);
+	forkandwait(numChildren);    // handles child and parent actions after fork
 
 	shmdt(lock);
-	deallocateshm();	
+	deallocateshm();	// Detach and deallocate shared memory
 	logfile();
 	return 0;	
 }
             
-void sigCatch(int signum) {
+void sigCatch(int signum) {     // Interrupt condition
 	printf("Cannot end program with Ctrl+C\n");
 	signal(SIGINT, sigCatch);
 }
 
-void timeout(int signum){
+void timeout(int signum){       // Timeout condition
 	printf("Timeout has occured. Now terminating all child processes.\n ");
 	logfile();
-	deallocateshm();	
-	kill(0, SIGKILL);
+	shmdt(lock);
+	deallocateshm();	// Detach and deallocate shared memory before termination 
+	kill(0, SIGKILL);       // Kill all child processes
 }
 
-void logfile(){
+void logfile(){             // Master log file generation
         char t[9];
         strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));
 
@@ -96,8 +97,8 @@ void forkandwait(int numChildren){
 	
 		pid_t childPid = fork();  // Create Child here
 
-		if (childPid == 0 ) { // Children perform the following	
-		 	if(execl("./slave","slave", (char *)NULL) == -1) {
+		if (childPid == 0 ) {                 // Each child uses exec to run ./slave	
+		 	if(execl("./slave","slave", (char *)NULL) == -1) {   
 				perror("Child execution of slave failed ");				
 			}	
 			exit(0);
@@ -106,12 +107,11 @@ void forkandwait(int numChildren){
             		perror("master: Error: Fork has failed!");
             		exit(0);
         	}       
-		wait(NULL);  // This Assures children perform in order
+		wait(NULL);  // Parent waits to assure children perform in order
     	}
-
-	for (int i = 0; i < numChildren; i++) { // Only the parent should reach here and wait for children
+		
+	for (int i = 0; i < numChildren; i++) { 
 		wait(NULL);	// Parent Waiting for children
 	}
-
 	printf("Child processes have completed.\n");
 }
