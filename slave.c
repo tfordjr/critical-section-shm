@@ -9,8 +9,6 @@
 void logfile();
 
 int main(){	
-	char t[9];
-	strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));
 	
 	FILE* outputfile = fopen("cstest", "a");
 	if (!outputfile) {   // perror file open failure
@@ -23,14 +21,14 @@ int main(){
 
 	bool* lock = openshm();   // opening existing shared memory in child process
 
-	for (int i = 0; i < 10; i++){
+	for (int i = 0; i < 10; i++){    // Try the lock 10 times
 		sleep(randomDelay);	
-		if(!(*lock)){						
-			*lock = 1;			
-			fprintf(outputfile, "%s File modified by process number %d\n", t, getpid());
-			*lock = 0;			
-			shmdt(lock);
-			logfile();
+		if(!(*lock)){		 // If unlocked				
+			*lock = 1;	 // Lock it
+			fprintf(outputfile, "%s File modified by process number %d\n", t, getpid()); // access
+			*lock = 0;	 // Unlock it	
+			shmdt(lock);     // detatch from shared memory
+			logfile();       
 			fclose(outputfile);
 			exit(0);	
 		}		
@@ -43,13 +41,13 @@ int main(){
 
 void logfile(){
 	char t[9];
-	strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));
+	strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));   // Init t with HH:MM:SS
 	
 	char outfile[16];
-	snprintf(outfile, sizeof(outfile), "logfile.%d", getpid());
+	snprintf(outfile, sizeof(outfile), "logfile.%d", getpid());  // generate logfile name with pid
 
 	FILE* outputfile = fopen(outfile, "a");
-	fprintf(outputfile, "%s File modified by process number %d\n", t, getpid());
+	fprintf(outputfile, "%s File modified by process number %d\n", t, getpid());   // log to logfile
 	fclose(outputfile);
 }
 
