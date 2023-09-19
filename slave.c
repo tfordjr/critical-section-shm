@@ -9,7 +9,7 @@
 void logfile();
 
 int main(){	
-	
+		
 	FILE* outputfile = fopen("cstest", "a");
 	if (!outputfile) {   // perror file open failure
                 perror("slave: Error: File open operation failed!");
@@ -25,6 +25,8 @@ int main(){
 		sleep(randomDelay);	
 		if(!(*lock)){		 // If unlocked				
 			*lock = 1;	 // Lock it
+			char t[9];
+			strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));  // Init t with HH:MM:SS
 			fprintf(outputfile, "%s File modified by process number %d\n", t, getpid()); // access
 			*lock = 0;	 // Unlock it	
 			shmdt(lock);     // detatch from shared memory
@@ -41,7 +43,7 @@ int main(){
 
 void logfile(){
 	char t[9];
-	strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));   // Init t with HH:MM:SS
+	strftime(t, sizeof(t), "%T", localtime(&(time_t){time(NULL)}));   // Update t with access HH:MM:SS
 	
 	char outfile[16];
 	snprintf(outfile, sizeof(outfile), "logfile.%d", getpid());  // generate logfile name with pid
