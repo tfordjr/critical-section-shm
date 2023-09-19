@@ -1,5 +1,5 @@
 Terry Ford Project 2 - master/slave using shm to access to critical sections one at a time 09/17/2023
-Git: No git repo-not required in the project 2 specifications.
+// Github: https://github.com/tfordjr/critical-section-shm.git
 
 How to run my program:
 make command will generate executables master and slave
