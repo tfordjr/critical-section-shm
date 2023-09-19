@@ -24,11 +24,25 @@ Makefile with pattern rules, make operation raises no warnings. make clean remov
 Appropriate comments that briefly explain implementation and methods used
 Minimal shared server resources used by only utilizing 1 byte (boolean) to successfully coordinate child processes
 Minimal redundant code. Most is designed modularly and reused effectively.
+shared memory is a small size and always properly allocated, detached, and deallocated. 
+Zombie processes are never spawned from my project.
 
-Notable exclusions are:
-slave.c waiting in the critical section. I'm not sure what purpose this serves. The slave.c implementation that I have uses delays to allow for other processes to access critical resource before attempting to enter critical resource itself. 
-From what I understand, the instructions want the child process to waste time within the critical resource. I don't understand what purpose it serves for a child process to gain access to a critical resource and waste time in it to deprive other processes access to the critical resource. I would like to understand that requirement better before implementing it. 
+Concerns:
+I believe the assignment instructions want us to let our child processes waste time in the critical resource,
+and I don't understand what purpose this serves at all. I believe this implementation implements the slave.c source
+file as intended, where the child process does waste time within the critical resource, but I don't understand what 
+that accomplishes.
 
+I could easily make a more efficient child traffic control process using semaphores or even this same implementation
+but without the wait times! I just don't understand why this style of implementation is the objective for this project.
+
+Notable exclusions:
+When incorrect number of arguments are given, program often segfaults.
+cstest is commonly empty when program suffers timeout termination, I assume because child is killed with cstest open 
+     and that erases the file. Not sure if that can be fixed. 
+Child processes always write to critical resource 5 times in succession and then terminate. I'm not sure why this is
+     the case. I don't know how child processes are always to first to access critical selection after leaving it. 
+config.h does assign maxChildren and timeout default values, but they are only used if values provided are inelligible. 
 
 
 
